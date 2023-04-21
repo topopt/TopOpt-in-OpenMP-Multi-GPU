@@ -1,7 +1,10 @@
 # TopOpt-in-OpenMP-Multi-GPU
 Topology optimization for linear elastic minimum compliance with volume constraints on cartesian grids in 3D. Implemented using OpenMP target offloading using multiple GPU acceleration.
 
-Five Design Iterations     | 5 Design Iterations       | 20 Design Iterations
+## Cantilever Beam Test Problem
+The code solves the cantilever beam test problem described in [Parallel framework for topology optimization using the method of moving asymptotes](https://link.springer.com/article/10.1007/s00158-012-0869-2).
+
+One Design Iteration       | Five Design Iterations    | 20 Design Iterations
 :-------------------------:|:-------------------------:|:-------------------------:
 ![Numerical solution after one design iteration](figures/1_iteration.png) | ![Numerical solution after five design iterations](figures/5_iterations.png) | ![Numerical solution after 20 design iterations](figures/20_iterations.png)
 
@@ -16,6 +19,10 @@ The code has been implemented and tested with the following version of `SuiteSpa
 | `CUDA`                | 11.1        | [CUDA Toolkit 11.1.0](https://developer.nvidia.com/cuda-11.1.0-download-archive?target_os=Linux)    |
 | `GCC`                 | 13.0        | [See the GCC offloading page](https://gcc.gnu.org/wiki/Offloading)                                  |
 | `clang`		| 16.0	      | [See the LLCM offloading page](https://openmp.llvm.org/SupportAndFAQ.html)			    |
+
+### Installing an OpenMP Offloading Enabled Compiler
+It is straight forward to install the NVIDIA `nvc` compiler that can be downloaded from the NVIDIA HPC SDK.<br>
+Installing an offloading enabled version of `clang` or `gcc` is slightly more complicated. Scripts for installing `gcc` 13 and `clang` 16 for NVPTX, AMD-GCN, and AMD-HSA backends can be found in `./compilers`.
 
 ## Compilation
 To set `PATH` and `LD_LIBRARY_PATH` you may consider exporting the variables in `paths/gbar/` or `paths/lumi`. For instance, to compile with `NVC` on `gbar.dtu.dk`, load
