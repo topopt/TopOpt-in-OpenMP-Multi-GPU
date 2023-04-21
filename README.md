@@ -1,17 +1,21 @@
 # TopOpt-in-OpenMP-Multi-GPU
-Topology optimization for linear elastic minimum compliance with volume constraints on cartesian grids in 3D. Implemented using OpenMP target offloading using Multiple GPU acceleration.
+Topology optimization for linear elastic minimum compliance with volume constraints on cartesian grids in 3D. Implemented using OpenMP target offloading using multiple GPU acceleration.
 
-### Dependencies
+Five Design Iterations     | 5 Design Iterations       | 20 Design Iterations
+:-------------------------:|:-------------------------:|:-------------------------:
+![Numerical solution after one design iteration](figures/1_iteration.png) | ![Numerical solution after five design iterations](figures/5_iterations.png) | ![Numerical solution after 20 design iterations](figures/20_iterations.png)
+
+## Dependencies
 The code has been implemented and tested with the following version of `SuiteSparse`, `OpenBLAS`,`NVC`, and `GCC` in mind.
 
 | **Package**           | **Version** | **Installation**                                                                                    |
 | :---                  | :---        | :---                                                                                                |
 | `SuiteSparse/CHOLMOD` | 5.1.2       | [See Github release notes](https://github.com/DrTimothyAldenDavis/SuiteSparse/releases/tag/v5.1.2)  |
 | `OpenBLAS`            | 0.2.20      | [See Github release notes](https://github.com/xianyi/OpenBLAS/releases/tag/v0.2.20)                 |
-| `nvhpc`               | 22.5        | [NVIDIA HPC SDK](https://developer.nvidia.com/nvidia-hpc-sdk-releases)                              |
+| `nvhpc`               | 21.9        | [NVIDIA HPC SDK](https://developer.nvidia.com/nvidia-hpc-sdk-releases)                              |
 | `CUDA`                | 11.1        | [CUDA Toolkit 11.1.0](https://developer.nvidia.com/cuda-11.1.0-download-archive?target_os=Linux)    |
 | `GCC`                 | 13.0        | [See the GCC offloading page](https://gcc.gnu.org/wiki/Offloading)                                  |
-
+| `clang`		| 16.0	      | [See the LLCM offloading page](https://openmp.llvm.org/SupportAndFAQ.html)			    |
 
 ## Compilation
 To set `PATH` and `LD_LIBRARY_PATH` you may consider exporting the variables in `paths/gbar/` or `paths/lumi`. For instance, to compile with `NVC` on `gbar.dtu.dk`, load
