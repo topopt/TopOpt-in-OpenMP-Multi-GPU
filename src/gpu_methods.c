@@ -593,26 +593,29 @@ void applyStateOperator_stencil_xz_d(gpuGrid * gpu_grid, const int l)
     int xmin = (node->prev == NULL) ? 1 : 2;
     int xmax = node->dims.nelx[l] + 2;
     if (node->prev != NULL){
-      applyStateOperator_stencil_kernel_1(node,l,xmin,xmin+LENGTH_LEFT,node->x,node->solver.mg[l].z,node->solver.mg[l].d);
+      #pragma omp task firstprivate(node,xmin,xmax)
+      {
+        applyStateOperator_stencil_kernel_1(node,l,xmin,xmin+LENGTH_LEFT,node->x,node->solver.mg[l].z,node->solver.mg[l].d);
+        SEND_MG_PREV(node,d,l)
+      }
       xmin += LENGTH_LEFT;
     }
     if (node->next != NULL){
-      applyStateOperator_stencil_kernel_1(node,l,xmax-LENGTH_RIGHT,xmax,node->x,node->solver.mg[l].z,node->solver.mg[l].d);
+      #pragma omp task firstprivate(node,xmin,xmax)
+      {
+        applyStateOperator_stencil_kernel_1(node,l,xmax-LENGTH_RIGHT,xmax,node->x,node->solver.mg[l].z,node->solver.mg[l].d);
+        SEND_MG_NEXT(node,d,l)
+      }
       xmax -= LENGTH_RIGHT;
     }
 
-    #pragma omp barrier
-
-    if (node->next != NULL){
-      SEND_MG_NEXT(node,d,l)
-    }
-    if (node->prev != NULL){
-      SEND_MG_PREV(node,d,l)
-    }
+    #pragma omp task firstprivate(node,xmin,xmax)
+    {
     applyStateOperator_stencil_kernel_1(node,l,xmin,xmax,node->x,node->solver.mg[l].z,node->solver.mg[l].d);
 //    zero_padding_kernel(node,l,node->solver.mg[l].d);
     if (node->prev == NULL){
       applyStateOperator_stencil_kernel_3(node,l,node->x,node->solver.mg[l].z,node->solver.mg[l].d);
+    }
     }
   }
 }
@@ -625,26 +628,28 @@ void applyStateOperator_stencil_xz_r(gpuGrid * gpu_grid, const int l)
     int xmin = (node->prev == NULL) ? 1 : 2;
     int xmax = node->dims.nelx[l] + 2;
     if (node->prev != NULL){
-      applyStateOperator_stencil_kernel_1(node,l,xmin,xmin+LENGTH_LEFT,node->x,node->solver.mg[l].z,node->solver.mg[l].r);
+      #pragma omp task firstprivate(node,xmin,xmax)
+      {
+        applyStateOperator_stencil_kernel_1(node,l,xmin,xmin+LENGTH_LEFT,node->x,node->solver.mg[l].z,node->solver.mg[l].r);
+        SEND_MG_PREV(node,r,l)
+      }
       xmin += LENGTH_LEFT;
     }
     if (node->next != NULL){
-      applyStateOperator_stencil_kernel_1(node,l,xmax-LENGTH_RIGHT,xmax,node->x,node->solver.mg[l].z,node->solver.mg[l].r);
+      #pragma omp task firstprivate(node,xmin,xmax)
+      {
+        applyStateOperator_stencil_kernel_1(node,l,xmax-LENGTH_RIGHT,xmax,node->x,node->solver.mg[l].z,node->solver.mg[l].r);
+        SEND_MG_NEXT(node,r,l)
+      }
       xmax -= LENGTH_RIGHT;
     }
-
-    #pragma omp barrier
-
-    if (node->next != NULL){
-      SEND_MG_NEXT(node,r,l)
-    }
-    if (node->prev != NULL){
-      SEND_MG_PREV(node,r,l)
-    }
-    applyStateOperator_stencil_kernel_1(node,l,xmin,xmax,node->x,node->solver.mg[l].z,node->solver.mg[l].r);
+    #pragma omp task firstprivate(node,xmin,xmax)
+    {
+      applyStateOperator_stencil_kernel_1(node,l,xmin,xmax,node->x,node->solver.mg[l].z,node->solver.mg[l].r);
 //    zero_padding_kernel(node,l,node->solver.mg[l].r);
-    if (node->prev == NULL){
-      applyStateOperator_stencil_kernel_3(node,l,node->x,node->solver.mg[l].z,node->solver.mg[l].r);
+      if (node->prev == NULL){
+        applyStateOperator_stencil_kernel_3(node,l,node->x,node->solver.mg[l].z,node->solver.mg[l].r);
+      }
     }
   }
 }
@@ -657,27 +662,28 @@ void applyStateOperator_stencil_xp_q(gpuGrid * gpu_grid)
     int xmin = (node->prev == NULL) ? 1 : 2;
     int xmax = node->dims.nelx[0] + 2;
     if (node->prev != NULL){
-      applyStateOperator_stencil_kernel_1(node,0,xmin,xmin+LENGTH_LEFT,node->x,node->solver.cg.p,node->solver.cg.q);
+      #pragma omp task firstprivate(node,xmin,xmax)
+      {
+        applyStateOperator_stencil_kernel_1(node,0,xmin,xmin+LENGTH_LEFT,node->x,node->solver.cg.p,node->solver.cg.q);
+        SEND_CG_PREV(node,q)
+      }
       xmin += LENGTH_LEFT;
     }
     if (node->next != NULL){
-      applyStateOperator_stencil_kernel_1(node,0,xmax-LENGTH_RIGHT,xmax,node->x,node->solver.cg.p,node->solver.cg.q);
+      #pragma omp task firstprivate(node,xmin,xmax)
+      {
+        applyStateOperator_stencil_kernel_1(node,0,xmax-LENGTH_RIGHT,xmax,node->x,node->solver.cg.p,node->solver.cg.q);
+        SEND_CG_NEXT(node,q)
+      }
       xmax -= LENGTH_RIGHT;
     }
-
-    #pragma omp barrier
-
-    if (node->next != NULL){
-      SEND_CG_NEXT(node,q)
-    }
-    if (node->prev != NULL){
-      SEND_CG_PREV(node,q)
-    }
-    
-    applyStateOperator_stencil_kernel_1(node,0,xmin,xmax,node->x,node->solver.cg.p,node->solver.cg.q);
+    #pragma omp task firstprivate(node,xmin,xmax)
+    {
+      applyStateOperator_stencil_kernel_1(node,0,xmin,xmax,node->x,node->solver.cg.p,node->solver.cg.q);
 //    zero_padding_kernel(node,0,node->solver.cg.q);
-    if (node->prev == NULL){
-      applyStateOperator_stencil_kernel_3(node,0,node->x,node->solver.cg.p,node->solver.cg.q);
+      if (node->prev == NULL){
+        applyStateOperator_stencil_kernel_3(node,0,node->x,node->solver.cg.p,node->solver.cg.q);
+      }
     }
   }
 }
@@ -741,15 +747,23 @@ void smoothDampedJacobi_halo_gpu(gpuGrid * gpu_grid, const uint_fast32_t l,const
       gpuNode * node = &(gpu_grid->targets[omp_get_thread_num()]);
       int xmin = (node->prev == NULL) ? 1 : 2;
       int xmax = node->dims.nelx[l] + 2;
+      #pragma omp taskgroup
+      {
       if (node->prev != NULL){
-        smoothDampedJacobi_halo_kernel(node,l,omega,xmin,xmin+LENGTH_LEFT);
+        #pragma omp task firstprivate(node,xmin,xmax)
+        {
+          smoothDampedJacobi_halo_kernel(node,l,omega,xmin,xmin+LENGTH_LEFT);
+        }
         xmin+=LENGTH_LEFT;
       }
       if (node->next != NULL){
-        smoothDampedJacobi_halo_kernel(node,l,omega,xmax-LENGTH_RIGHT,xmax);
+        #pragma omp task firstprivate(node,xmin,xmax)
+        {
+          smoothDampedJacobi_halo_kernel(node,l,omega,xmax-LENGTH_RIGHT,xmax);
+        }
         xmax-=LENGTH_RIGHT;
       }
-
+      }
       #pragma omp barrier
 
         // The above kernels must finish before the data transfers of the boundaries may proceed.
@@ -806,26 +820,43 @@ void add_d_to_z(gpuGrid * gpu_grid, const uint_fast32_t l)
     gpuNode * node = &(gpu_grid->targets[omp_get_thread_num()]);
     const int offset = node->dims.offset[l];
     const int length = node->dims.length[l];
+    #pragma omp taskgroup
+    {
     if (node->prev != NULL){
-      add_d_to_z_kernel(node,l,offset,offset+NODE_SIZE(node,l)*LENGTH_LEFT);
+      #pragma omp task firstprivate(node,offset)
+      {
+        add_d_to_z_kernel(node,l,offset,offset+NODE_SIZE(node,l)*LENGTH_LEFT);
+      }
     }
     if (node->next != NULL){
-      add_d_to_z_kernel(node,l,offset+length-NODE_SIZE(node,l)*LENGTH_RIGHT,offset+length);
+      #pragma omp task firstprivate(node,offset)
+      {
+        add_d_to_z_kernel(node,l,offset+length-NODE_SIZE(node,l)*LENGTH_RIGHT,offset+length);
+      }
     }
-    
+    }
     #pragma omp barrier
 
     int from = offset;
     int to = offset+length;
     if (node->prev != NULL){
-      SEND_MG_PREV(node,z,l)
+      #pragma omp task firstprivate(node)
+      {
+        SEND_MG_PREV(node,z,l)
+      }
       from += LENGTH_LEFT*NODE_SIZE(node,l);
     }
     if (node->next != NULL){
-      SEND_MG_NEXT(node,z,l)
+      #pragma omp task firstprivate(node)
+      {
+        SEND_MG_NEXT(node,z,l)
+      }
       to -= LENGTH_RIGHT*NODE_SIZE(node,l);
     }
-    add_d_to_z_kernel(node,l,from,to);
+    #pragma omp task firstprivate(node,to,from)
+    {
+      add_d_to_z_kernel(node,l,from,to);
+    }
   }
 }
 
@@ -919,11 +950,18 @@ void projectToFinerGrid_halo_gpu(gpuGrid * gpu_grid, const uint_fast32_t l)
   {
     gpuNode * node = &(gpu_grid->targets[omp_get_thread_num()]);
     projectToFinerGrid_halo_gpu_kernel(node,l);
+    #pragma omp barrier
     if (node->next != NULL){
-      SEND_MG_NEXT(node,d,l)
+      #pragma omp task firstprivate(node)
+      {
+        SEND_MG_NEXT(node,d,l)
+      }
     }
     if (node->prev != NULL){
-      SEND_MG_PREV(node,d,l)
+      #pragma omp task firstprivate(node)
+      {
+        SEND_MG_PREV(node,d,l)
+      }
     }
   }
 }
@@ -994,11 +1032,18 @@ void projectToCoarserGrid_halo_gpu(gpuGrid * gpu_grid, const uint_fast32_t l)
   {
     gpuNode * node = &(gpu_grid->targets[omp_get_thread_num()]);
     projectToCoarserGrid_halo_gpu_kernel(node,l);
+    #pragma omp barrier
     if (node->next != NULL){
-      SEND_MG_NEXT(node,r,l+1)
+      #pragma omp task firstprivate(node)
+      {
+        SEND_MG_NEXT(node,r,l+1)
+      }
     }
     if (node->prev != NULL){
-      SEND_MG_PREV(node,r,l+1)
+      #pragma omp task firstprivate(node)
+      {
+        SEND_MG_PREV(node,r,l+1)
+      }
     }
   }
 }
@@ -1018,8 +1063,14 @@ void to_coarse_gpu(gpuGrid * gpu_grid,const uint_fast32_t l)
   #pragma omp parallel num_threads(gpu_grid->num_targets)
   {
     gpuNode * node = &(gpu_grid->targets[omp_get_thread_num()]);
-    UPDATE_MG_FROM(node,r,l+1)
-    UPDATE_MG_FROM(node,d,l)
+    #pragma omp task firstprivate(node)
+    {
+      UPDATE_MG_FROM(node,r,l+1)
+    }
+    #pragma omp task firstprivate(node)
+    {
+      UPDATE_MG_FROM(node,d,l)
+    }
   }
 }
 
@@ -1039,25 +1090,43 @@ void d_to_d_minus_r(gpuGrid * gpu_grid, const uint_fast32_t l)
     gpuNode * node = &(gpu_grid->targets[omp_get_thread_num()]);
     const int offset = node->dims.offset[l];
     const int length = node->dims.length[l];
+    #pragma omp taskgroup
+    {
     if (node->prev != NULL){
-      d_to_d_minus_r_kernel(node,l,offset,offset+NODE_SIZE(node,l)*LENGTH_LEFT);
+      #pragma omp task firstprivate(node,offset)
+      {
+        d_to_d_minus_r_kernel(node,l,offset,offset+NODE_SIZE(node,l)*LENGTH_LEFT);
+      }
     }
     if (node->next != NULL){
-      d_to_d_minus_r_kernel(node,l,offset+length-NODE_SIZE(node,l)*LENGTH_RIGHT,offset+length);
+      #pragma omp task firstprivate(node,offset,length)
+      {
+        d_to_d_minus_r_kernel(node,l,offset+length-NODE_SIZE(node,l)*LENGTH_RIGHT,offset+length);
+      }
+    }
     }
     #pragma omp barrier
     
     int from = offset;
     int to = offset+length;
     if (node->prev != NULL){
-      SEND_MG_PREV(node,d,l)
+      #pragma omp task firstprivate(node)
+      {
+        SEND_MG_PREV(node,d,l)
+      }
       from += LENGTH_LEFT*NODE_SIZE(node,l);
     }
     if (node->next != NULL){
-      SEND_MG_NEXT(node,d,l)
+      #pragma omp task firstprivate(node)
+      {
+        SEND_MG_NEXT(node,d,l)
+      }
       to -= LENGTH_RIGHT*NODE_SIZE(node,l);
     }
-    d_to_d_minus_r_kernel(node,l,from,to);
+    #pragma omp task firstprivate(node,from,to)
+    {
+      d_to_d_minus_r_kernel(node,l,from,to);
+    }
   }
 }
 
@@ -1077,26 +1146,43 @@ void r_to_F_minus_r(gpuGrid * gpu_grid)
     gpuNode * node = &(gpu_grid->targets[omp_get_thread_num()]);
     const int offset = node->dims.offset[0];
     const int length = node->dims.length[0];
+    #pragma omp taskgroup
+    {
     if (node->prev != NULL){
-      r_to_F_minus_r_kernel(node,offset,offset+NODE_SIZE(node,0)*LENGTH_LEFT);
+      #pragma omp task firstprivate(node,offset)
+      {
+        r_to_F_minus_r_kernel(node,offset,offset+NODE_SIZE(node,0)*LENGTH_LEFT);
+      }
     }
     if (node->next != NULL){
-      r_to_F_minus_r_kernel(node,offset+length-NODE_SIZE(node,0)*LENGTH_RIGHT,offset+length);
+      #pragma omp task firstprivate(node,offset,length)
+      {
+        r_to_F_minus_r_kernel(node,offset+length-NODE_SIZE(node,0)*LENGTH_RIGHT,offset+length);
+      }
     }
-
+    }
     #pragma omp barrier
     
     int from = offset;
     int to = offset+length;
     if (node->prev != NULL){
-      SEND_MG_PREV(node,r,0)
+      #pragma omp task firstprivate(node)
+      {
+        SEND_MG_PREV(node,r,0)
+      }
       from += LENGTH_LEFT*NODE_SIZE(node,0);
     }
     if (node->next != NULL){
-      SEND_MG_NEXT(node,r,0)
+      #pragma omp task firstprivate(node)
+      {
+        SEND_MG_NEXT(node,r,0)
+      }
       to -= LENGTH_RIGHT*NODE_SIZE(node,0);
     }
-    r_to_F_minus_r_kernel(node,from,to);
+    #pragma omp task firstprivate(node,from,to)
+    {
+      r_to_F_minus_r_kernel(node,from,to);
+    }
   }
 }
 
