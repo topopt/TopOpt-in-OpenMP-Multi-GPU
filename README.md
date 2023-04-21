@@ -1,5 +1,7 @@
 # TopOpt-in-OpenMP-Multi-GPU
 Topology optimization for linear elastic minimum compliance with volume constraints on cartesian grids in 3D. Implemented using OpenMP target offloading using multiple GPU acceleration.
+<br>
+The code in this repository is a direct continuation of the OpenMP code from [Simple and efficient GPU accelerated topology optimisation: Codes and applications](https://www.sciencedirect.com/science/article/pii/S0045782523001676).
 
 ## Cantilever Beam Test Problem
 The code solves the cantilever beam test problem described in [Parallel framework for topology optimization using the method of moving asymptotes](https://link.springer.com/article/10.1007/s00158-012-0869-2).
