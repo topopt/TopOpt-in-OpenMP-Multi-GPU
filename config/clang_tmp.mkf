@@ -1,0 +1,17 @@
+# Standard make variables for C Compiler
+CC=clang
+CFLAGS = -Wall -std=c17 -O3
+
+# Standard make variables for C++ Compiler
+CXX=clang++
+CXXFLAGS = -Wall -std=c++17 -O3
+
+# OpenMP related flags
+OMPFLAGS = -fopenmp -fopenmp-simd# -fopenmp-target-debug
+CFLAGS += $(OMPFLAGS)
+CXXFLAGS += $(OMPFLAGS)
+ifndef LUMI
+LDFLAGS += -L/work3/s174515/LLVM/runtimes/runtimes-bins/openmp/runtime/src/ -lomp -L/appl/gcc/11.3.0-binutils-2.38/lib64/ -Wl,-rpath,/appl/gcc/11.3.0-binutils-2.38/lib64/
+else
+LDFLAGS += -L/users/rydahlan/LLVM/16.0/runtimes/runtimes-bins/openmp/runtime/src/ -lomp
+endif

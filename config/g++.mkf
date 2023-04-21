@@ -1,0 +1,15 @@
+# Write the path to the desired offloading enabled version of GCC here
+#GCCPATH=/work3/s174515/GCC/13.0.0/gcc-offload/install/
+
+# Standard make variables for C Compiler
+CC = $(GCCPATH)gcc
+CFLAGS = -Wall -Wno-sign-compare -g -O3 -ffast-math -std=c17
+
+# Standard make variables for C++ compiler
+CXX = $(GCCPATH)g++
+CXXFLAGS = -Wall -Wno-sign-compare -g -O3 -ffast-math -std=c++17
+
+# OpenMP related flags
+OMPFLAGS = -fopenmp -foffload-options="-O3 -ffast-math -lm -flto -funsafe-math-optimizations -finline-functions -latomic"
+CFLAGS += $(OMPFLAGS)
+CXXFLAGS += $(OMPFLAGS)

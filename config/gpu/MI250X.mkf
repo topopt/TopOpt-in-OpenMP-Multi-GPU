@@ -1,0 +1,19 @@
+ifeq ("$(CC)","gcc")
+CFLAGS += -foffload=amdgcn-amdhsa -foffload-options=-march=gfx90a
+CXXFLAGS += -foffload=amdgcn-amdhsa -foffload-options=-march=gfx90a
+endif
+
+ifeq ("$(CC)","clang")
+GPU_ARCH = gfx90a
+ARCH_PATH=/users/rydahlan/LLVM/16.0/runtimes/runtimes-bins/openmp/libomptarget/libomptarget-amdgpu-$(GPU_ARCH).bc
+TARGETFLAGS = --offload-arch=$(GPU_ARCH) --libomptarget-amdgpu-bc-path=$(ARCH_PATH)
+CFLAGS+=$(TARGETFLAGS)
+CXXFLAGS+=$(TARGETFLAGS)
+CPPFLAGS += -I/users/rydahlan/LLVM/16.0/runtimes/runtimes-bins/openmp/runtime/src/
+endif
+
+ifeq ("$(COMPILER)","cray")
+TARGETFLAGS= -fopenmp-targets=amdgcn-amd-amdhsa -Xopenmp-target=amdgcn-amd-amdhsa -march=gfx90a
+CFLAGS+=$(TARGETFLAGS)
+CXXFLAGS+=$(TARGETFLAGS)
+endif

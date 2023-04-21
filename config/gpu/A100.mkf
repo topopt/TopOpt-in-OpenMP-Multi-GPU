@@ -1,0 +1,18 @@
+ifeq ("$(CC)","gcc")
+CFLAGS += -foffload=nvptx-none -foffload-options="-march-map=sm_80 -latomic"
+CXXFLAGS += -foffload=nvptx-none -foffload-options="-march-map=sm_80 -latomic"
+endif
+
+ifeq ("$(CC)","nvc")
+CFLAGS+=-gpu=cc80
+CXXFLAGS+=-gpu=cc80
+endif
+
+ifeq ("$(CC)","clang")
+GPU_ARCH = sm_80
+ARCH_PATH=/work3/s174515/LLVM20230221/runtimes/runtimes-bins/openmp/libomptarget/libomptarget-nvptx-$(GPU_ARCH).bc
+TARGETFLAGS = --offload-arch=$(GPU_ARCH) --libomptarget-nvptx-bc-path=$(ARCH_PATH)
+CFLAGS+=$(TARGETFLAGS)
+CXXFLAGS+=$(TARGETFLAGS)
+CPPFLAGS += -I/work3/s174515/LLVM20230221/runtimes/runtimes-bins/openmp/runtime/src/
+endif

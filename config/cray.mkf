@@ -1,0 +1,17 @@
+# Standard make variables for C Compiler
+CC=/opt/cray/pe/craype/2.7.17/bin/cc
+CFLAGS = -Wall -g -std=c17 -O3
+
+# Standard make variables for C++ Compiler
+CXX=/opt/cray/pe/craype/2.7.17/bin/CC
+CXXFLAGS = -Wall -g -std=c++17 -O3
+
+# OpenMP related flags
+OMPFLAGS = -fopenmp -fopenmp-simd
+CFLAGS += $(OMPFLAGS)
+CXXFLAGS += $(OMPFLAGS)
+ifndef LUMI
+LDFLAGS += -L/work3/s174515/LLVM/runtimes/runtimes-bins/openmp/runtime/src/ -lomp -L/appl/gcc/11.3.0-binutils-2.38/lib64/ -Wl,-rpath,/appl/gcc/11.3.0-binutils-2.38/lib64/
+else
+
+endif

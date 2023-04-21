@@ -1,0 +1,12 @@
+# Standard make variables for C Compiler
+CC=nvc
+CFLAGS = -Wall -g -std=c17 -Msafeptr -march=native -O3 -mavx -mavx2
+
+# Standard make variables for C++ Compiler
+CXX=nvc++
+CXXFLAGS = -Wall -g -std=c++17 -Msafeptr -march=native -O3 -mavx -mavx2
+
+# OpenMP related flags
+OMPFLAGS = -mp=gpu -mp=noautopar -gpu=fastmath
+CFLAGS += $(OMPFLAGS)
+CXXFLAGS += $(OMPFLAGS)
